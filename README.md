@@ -41,3 +41,11 @@ protocol that isn't reliant on TCPNODELAY.
 - A 1ms waiting delay before sending is built in to 
 reduce stress and increase efficiency by waiting for 
 further data.
+
+---
+
+### Compiling from source
+
+I will make this a gradle project at a later point. For now,
+all I can do is tell you that this uses tuddylib as library, and
+should be compiled with a java8 jdk.
