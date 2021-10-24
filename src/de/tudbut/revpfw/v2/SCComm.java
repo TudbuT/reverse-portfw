@@ -31,7 +31,7 @@ public class SCComm {
     public void writeDataPacket(int cid, byte[] data) throws IOException {
         tout.writeInt(cid);
         tout.writeInt(data.length);
-        BufferFixer.write(out, data, true);
+        BufferFixer.write(out, data);
     }
     public int readDataPacketCID() throws IOException {
         return tinp.readInt();

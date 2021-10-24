@@ -107,7 +107,7 @@ public class Server {
         if (socket == null)
             return;
         try {
-            BufferFixer.write(socket.getOutputStream(), bytes, false);
+            BufferFixer.write(socket.getOutputStream(), bytes);
         } catch (Exception e) {
             clients.get(cid).close();
             clients.set(cid, null);
@@ -142,7 +142,7 @@ public class Server {
     }
     
     private static void readFromClient(int cid, InputStream inp, SCComm scComm) throws IOException {
-        byte[] bytes = new byte[Math.min(inp.available(), 0x800)];
+        byte[] bytes = new byte[Math.min(inp.available(), 0x2000)];
         BufferFixer.read(inp, bytes);
         scComm.writePacketType(SCComm.PacketType.DATA);
         scComm.writeDataPacket(cid, bytes);

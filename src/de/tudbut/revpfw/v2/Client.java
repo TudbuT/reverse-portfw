@@ -83,7 +83,7 @@ public class Client {
         if (socket == null)
             return;
         try {
-            BufferFixer.write(socket.getOutputStream(), data, false);
+            BufferFixer.write(socket.getOutputStream(), data);
         } catch (Exception e) {
             sockets.get(cid).close();
             sockets.set(cid, null);
@@ -118,7 +118,7 @@ public class Client {
     }
     
     private static void readFromClient(int cid, InputStream inp, CSComm csComm) throws IOException {
-        byte[] bytes = new byte[Math.min(inp.available(), 0x800)];
+        byte[] bytes = new byte[Math.min(inp.available(), 0x2000)];
         BufferFixer.read(inp, bytes);
         csComm.writePacketType(CSComm.PacketType.DATA);
         csComm.writeDataPacket(cid, bytes);

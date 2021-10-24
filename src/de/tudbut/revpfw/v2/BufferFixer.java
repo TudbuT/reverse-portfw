@@ -11,11 +11,10 @@ import java.io.OutputStream;
 
 public class BufferFixer {
     
-    public static void write(OutputStream stream, byte[] bytes, boolean flush) throws IOException {
-        for (int i = 0 ; i < bytes.length ; i+=0x1000) {
-            stream.write(bytes, i, Math.min(i + 0x1000, bytes.length) - i);
-            if(flush)
-                stream.flush();
+    public static void write(OutputStream stream, byte[] bytes) throws IOException {
+        for (int i = 0 ; i < bytes.length ; i+=0xff) {
+            stream.write(bytes, i, Math.min(i + 0xff, bytes.length) - i);
+            stream.flush();
         }
     }
     
