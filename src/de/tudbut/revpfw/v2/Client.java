@@ -118,7 +118,7 @@ public class Client {
     }
     
     private static void readFromClient(int cid, InputStream inp, CSComm csComm) throws IOException {
-        byte[] bytes = new byte[inp.available()];
+        byte[] bytes = new byte[Math.min(inp.available(), 0x800)];
         BufferFixer.read(inp, bytes);
         csComm.writePacketType(CSComm.PacketType.DATA);
         csComm.writeDataPacket(cid, bytes);

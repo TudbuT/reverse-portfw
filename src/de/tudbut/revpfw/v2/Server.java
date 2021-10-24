@@ -142,7 +142,7 @@ public class Server {
     }
     
     private static void readFromClient(int cid, InputStream inp, SCComm scComm) throws IOException {
-        byte[] bytes = new byte[inp.available()];
+        byte[] bytes = new byte[Math.min(inp.available(), 0x800)];
         BufferFixer.read(inp, bytes);
         scComm.writePacketType(SCComm.PacketType.DATA);
         scComm.writeDataPacket(cid, bytes);
