@@ -3,7 +3,6 @@ package de.tudbut.revpfw.v2;
 import tudbut.io.TypedInputStream;
 import tudbut.io.TypedOutputStream;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,7 +31,7 @@ public class SCComm {
     public void writeDataPacket(int cid, byte[] data) throws IOException {
         tout.writeInt(cid);
         tout.writeInt(data.length);
-        BufferFixer.write(out, data);
+        BufferFixer.write(out, data, true);
     }
     public int readDataPacketCID() throws IOException {
         return tinp.readInt();

@@ -1,7 +1,6 @@
 package de.tudbut.revpfw.v2;
 
 import tudbut.io.TypedInputStream;
-import tudbut.tools.Lock;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -108,7 +107,7 @@ public class Server {
         if (socket == null)
             return;
         try {
-            BufferFixer.write(socket.getOutputStream(), bytes);
+            BufferFixer.write(socket.getOutputStream(), bytes, false);
         } catch (Exception e) {
             clients.get(cid).close();
             clients.set(cid, null);
