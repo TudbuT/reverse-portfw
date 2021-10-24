@@ -63,5 +63,6 @@ public class SCComm {
         DATA,
         DISCONNECT,
         CONNECT,
+        KEEPALIVE,
     }
 }

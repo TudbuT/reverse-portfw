@@ -63,5 +63,6 @@ public class CSComm {
     public enum PacketType {
         DATA,
         DISCONNECT,
+        KEEPALIVE,
     }
 }

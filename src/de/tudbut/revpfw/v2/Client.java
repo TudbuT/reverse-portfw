@@ -18,19 +18,31 @@ public class Client {
     
     public static void start(String server, int port, int portLocal, String key) throws IOException, InterruptedException {
         Socket socket = new Socket(server, port);
-        TypedInputStream in = new TypedInputStream(socket.getInputStream());
         TypedOutputStream out = new TypedOutputStream(socket.getOutputStream());
         InputStream inp = socket.getInputStream();
         OutputStream oup = socket.getOutputStream();
         socket.setTcpNoDelay(false);
         oup.write(new byte[] { 'R', 'P', 'F', 73 });
         out.writeString(key);
-        ArrayList<Socket> sockets = new ArrayList<>();
         socket.setSendBufferSize(0xffff);
         socket.setReceiveBufferSize(0xffff);
+        socket.setKeepAlive(true);
+        
+        ArrayList<Socket> sockets = new ArrayList<>();
         SCComm scComm = new SCComm(socket);
         CSComm csComm = new CSComm(socket);
+        
+        if(scComm.readPacketType() != SCComm.PacketType.KEEPALIVE) {
+            return;
+        }
+        System.out.println("READY.");
+        
+        long lastKA = 0;
         while (true) {
+            if(System.currentTimeMillis() - lastKA >= 30000) {
+                lastKA = System.currentTimeMillis();
+                csComm.writePacketType(CSComm.PacketType.KEEPALIVE);
+            }
             if(inp.available() > 0) {
                 readFromServer(sockets, scComm, csComm, portLocal);
             }

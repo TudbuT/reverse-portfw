@@ -20,17 +20,25 @@ public class Server {
     
     public static void start(int port, String key) throws IOException {
         ServerSocket socket = new ServerSocket(port);
+        socket.setSoTimeout(1);
+        
         Socket handler = null;
         SCComm scComm = null;
         CSComm csComm = null;
         TypedInputStream handlerIn = null;
         ArrayList<Socket> clients = new ArrayList<>();
-        Lock gotHandler = new Lock(true);
-        socket.setSoTimeout(1);
+        
+        long lastKA = 0;
         while (true) {
             try {
+                if(System.currentTimeMillis() - lastKA >= 30000) {
+                    lastKA = System.currentTimeMillis();
+                    if(scComm != null)
+                        scComm.writePacketType(SCComm.PacketType.KEEPALIVE);
+                }
                 try {
                     Socket newClient = socket.accept();
+                    newClient.setKeepAlive(true);
                     if(handler == null) {
                         byte[] bytes = new byte[4];
                         newClient.setSoTimeout(500);
@@ -41,18 +49,19 @@ public class Server {
                         }
                         newClient.setSoTimeout(0);
                         if (Arrays.equals(bytes, new byte[] { 'R', 'P', 'F', 73 })) {
-                            scComm = new SCComm(newClient);
-                            csComm = new CSComm(newClient);
                             handlerIn = new TypedInputStream(newClient.getInputStream());
                             if (!handlerIn.readString().equals(key)) {
                                 newClient.close();
                                 handlerIn = null;
                             }
                             else {
+                                scComm = new SCComm(newClient);
+                                csComm = new CSComm(newClient);
                                 newClient.setSendBufferSize(0xffff);
                                 newClient.setReceiveBufferSize(0xffff);
                                 handler = newClient;
-                                gotHandler.unlock();
+                                scComm.writePacketType(SCComm.PacketType.KEEPALIVE);
+                                System.out.println("READY");
                             }
                         }
                     }
