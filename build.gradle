@@ -42,10 +42,9 @@ jar {
 task moveJar {
     doLast {
         try {
-            new File("build/libs/reverse-portfw-1.0-SNAPSHOT.jar").renameTo(new File("reverse-portfw.jar"))
-        } catch(Exception e) { e.printStackTrace(); }
+            file("build/libs/reverse-portfw-1.0-SNAPSHOT.jar").renameTo(file("reverse-portfw.jar"))
+        } catch(Exception ignored) { }
     }
-    outputs.upToDateWhen { false }
 }
 
 jar.finalizedBy(moveJar)
