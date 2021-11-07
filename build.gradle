@@ -40,6 +40,7 @@ jar {
 }
 
 task moveJar {
+    outputs.upToDateWhen { false }
     try {
         new File("build/libs/reverse-portfw-1.0-SNAPSHOT.jar").renameTo(new File("reverse-portfw.jar"))
     } catch(Exception ignored) {}
