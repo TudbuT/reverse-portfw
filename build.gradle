@@ -1,0 +1,48 @@
+//file:noinspection GroovyAssignabilityCheck
+import java.nio.file.Files
+import java.nio.file.Paths
+
+plugins {
+    id 'java'
+}
+
+group 'de.tudbut'
+version '1.0-SNAPSHOT'
+
+compileJava {
+    options.encoding = "UTF-8"
+}
+
+configurations {
+    atj
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation atj(files('TuddyLIB.jar'))
+}
+
+jar {
+    from {
+        configurations.atj.collect {
+            !it.exists() ? null : it.isDirectory() ? it : zipTree(it)
+        }
+    } {
+        exclude 'META-INF', '*.txt'
+    }
+
+    manifest{attributes([
+            'Main-Class': 'de.tudbut.revpfw.Main'
+    ])}
+}
+
+task moveJar {
+    try {
+        new File("build/libs/reverse-portfw-1.0-SNAPSHOT.jar").renameTo(new File("reverse-portfw.jar"))
+    } catch(Exception ignored) {}
+}
+
+jar.finalizedBy(moveJar)
