@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 public class Client {
     
-    public static void start(String server, int port, int portLocal, String key) throws IOException, InterruptedException {
+    public static void start(String server, int port, int portLocal, String key, int speed) throws IOException, InterruptedException {
         Socket socket = new Socket(server, port);
         TypedOutputStream out = new TypedOutputStream(socket.getOutputStream());
         InputStream inp = socket.getInputStream();
@@ -23,6 +23,7 @@ public class Client {
         socket.setTcpNoDelay(false);
         oup.write(new byte[] { 'R', 'P', 'F', 73 });
         out.writeString(key);
+        out.writeInt(speed);
         socket.setSendBufferSize(0xffff);
         socket.setReceiveBufferSize(0xffff);
         socket.setKeepAlive(true);
@@ -45,7 +46,7 @@ public class Client {
             if(inp.available() > 0) {
                 readFromServer(sockets, scComm, csComm, portLocal);
             }
-            readFromClients(sockets, csComm);
+            readFromClients(sockets, csComm, speed);
             Thread.sleep(1);
         }
     }
@@ -92,7 +93,7 @@ public class Client {
         }
     }
     
-    private static void readFromClients(ArrayList<Socket> sockets, CSComm csComm) throws IOException {
+    private static void readFromClients(ArrayList<Socket> sockets, CSComm csComm, int speed) throws IOException {
         for (int cid = 0, socketsSize = sockets.size() ; cid < socketsSize ; cid++) {
             Socket socket = sockets.get(cid);
             if (socket == null)
@@ -106,7 +107,7 @@ public class Client {
             }
             try {
                 if(socket.getInputStream().available() > 0) {
-                    readFromClient(cid, socket.getInputStream(), csComm);
+                    readFromClient(cid, socket.getInputStream(), csComm, speed);
                 }
             } catch (Exception ignored) {
                 socket.close();
@@ -117,8 +118,8 @@ public class Client {
         }
     }
     
-    private static void readFromClient(int cid, InputStream inp, CSComm csComm) throws IOException {
-        byte[] bytes = new byte[Math.min(inp.available(), 0x2000)];
+    private static void readFromClient(int cid, InputStream inp, CSComm csComm, int speed) throws IOException {
+        byte[] bytes = new byte[Math.min(inp.available(), speed)];
         BufferFixer.read(inp, bytes);
         csComm.writePacketType(CSComm.PacketType.DATA);
         csComm.writeDataPacket(cid, bytes);

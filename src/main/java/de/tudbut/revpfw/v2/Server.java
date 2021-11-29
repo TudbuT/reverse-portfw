@@ -27,6 +27,8 @@ public class Server {
         TypedInputStream handlerIn = null;
         ArrayList<Socket> clients = new ArrayList<>();
         
+        int speed = 0x2000;
+        
         long lastKA = 0;
         while (true) {
             try {
@@ -54,6 +56,7 @@ public class Server {
                                 handlerIn = null;
                             }
                             else {
+                                speed = handlerIn.readInt();
                                 scComm = new SCComm(newClient);
                                 csComm = new CSComm(newClient);
                                 newClient.setSendBufferSize(0xffff);
@@ -76,7 +79,7 @@ public class Server {
                 }
                 if (handlerIn.getStream().available() > 0)
                     readFromHandler(scComm, csComm, clients);
-                readFromClients(clients, scComm);
+                readFromClients(clients, scComm, speed);
                 Thread.sleep(1);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -116,7 +119,7 @@ public class Server {
         }
     }
     
-    private static void readFromClients(ArrayList<Socket> clients, SCComm scComm) throws IOException {
+    private static void readFromClients(ArrayList<Socket> clients, SCComm scComm, int speed) throws IOException {
         for (int cid = 0, clientsSize = clients.size() ; cid < clientsSize ; cid++) {
             Socket socket = clients.get(cid);
             if (socket == null)
@@ -130,7 +133,7 @@ public class Server {
             }
             try {
                 if(socket.getInputStream().available() > 0) {
-                    readFromClient(cid, socket.getInputStream(), scComm);
+                    readFromClient(cid, socket.getInputStream(), scComm, speed);
                 }
             } catch (Exception ignored) {
                 socket.close();
@@ -141,8 +144,8 @@ public class Server {
         }
     }
     
-    private static void readFromClient(int cid, InputStream inp, SCComm scComm) throws IOException {
-        byte[] bytes = new byte[Math.min(inp.available(), 0x2000)];
+    private static void readFromClient(int cid, InputStream inp, SCComm scComm, int speed) throws IOException {
+        byte[] bytes = new byte[Math.min(inp.available(), speed)];
         BufferFixer.read(inp, bytes);
         scComm.writePacketType(SCComm.PacketType.DATA);
         scComm.writeDataPacket(cid, bytes);

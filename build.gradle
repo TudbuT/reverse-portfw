@@ -1,6 +1,4 @@
 //file:noinspection GroovyAssignabilityCheck
-import java.nio.file.Files
-import java.nio.file.Paths
 
 plugins {
     id 'java'
