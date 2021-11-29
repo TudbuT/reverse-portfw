@@ -24,8 +24,8 @@ public class Client {
         oup.write(new byte[] { 'R', 'P', 'F', 73 });
         out.writeString(key);
         out.writeInt(speed);
-        socket.setSendBufferSize(0xffff);
-        socket.setReceiveBufferSize(0xffff);
+        socket.setSendBufferSize(speed * 4);
+        socket.setReceiveBufferSize(speed * 4);
         socket.setKeepAlive(true);
         
         ArrayList<Socket> sockets = new ArrayList<>();

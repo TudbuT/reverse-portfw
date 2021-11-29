@@ -59,8 +59,8 @@ public class Server {
                                 speed = handlerIn.readInt();
                                 scComm = new SCComm(newClient);
                                 csComm = new CSComm(newClient);
-                                newClient.setSendBufferSize(0xffff);
-                                newClient.setReceiveBufferSize(0xffff);
+                                newClient.setSendBufferSize(speed * 4);
+                                newClient.setReceiveBufferSize(speed * 4);
                                 handler = newClient;
                                 scComm.writePacketType(SCComm.PacketType.KEEPALIVE);
                                 System.out.println("READY");
