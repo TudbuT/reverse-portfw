@@ -20,7 +20,7 @@ public class Main {
             return;
         }
         if(args[0].equals("client") && args.length == 5 || args.length == 6) {
-            Client.start(args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]), args[4], (int)(args.length == 6 ? Float.parseFloat(args[5]) / 1024 : 0x2000));
+            Client.start(args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]), args[4], (int)(args.length == 6 ? Float.parseFloat(args[5]) * 1024 : 0x2000));
         }
         if(args[0].equals("server") && args.length == 3) {
             Server.start(Integer.parseInt(args[1]), args[2]);
