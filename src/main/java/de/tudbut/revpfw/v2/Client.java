@@ -14,7 +14,7 @@ import java.util.ArrayList;
  */
 
 public class Client {
-    
+
     public static void start(String server, int port, int portLocal, String key, int speed) throws IOException, InterruptedException {
         Socket socket = new Socket(server, port);
         TypedOutputStream out = new TypedOutputStream(socket.getOutputStream());
@@ -24,19 +24,21 @@ public class Client {
         oup.write(new byte[] { 'R', 'P', 'F', 73 });
         out.writeString(key);
         out.writeInt(speed);
+        boolean hyperspeed = System.getenv("HYPERSPEED") != null;
+        out.writeBoolean(hyperspeed);
         socket.setSendBufferSize(speed * 4);
         socket.setReceiveBufferSize(speed * 4);
         socket.setKeepAlive(true);
-        
+
         ArrayList<Socket> sockets = new ArrayList<>();
         SCComm scComm = new SCComm(socket);
         CSComm csComm = new CSComm(socket);
-        
+
         if(scComm.readPacketType() != SCComm.PacketType.KEEPALIVE) {
             return;
         }
         System.out.println("READY.");
-        
+
         long lastKA = 0;
         while (true) {
             if(System.currentTimeMillis() - lastKA >= 30000) {
@@ -47,10 +49,11 @@ public class Client {
                 readFromServer(sockets, scComm, csComm, portLocal);
             }
             readFromClients(sockets, csComm, speed);
-            Thread.sleep(1);
+            if(!hyperspeed)
+                Thread.sleep(1);
         }
     }
-    
+
     private static void readFromServer(ArrayList<Socket> sockets, SCComm scComm, CSComm csComm, int portLocal) throws IOException {
         switch (scComm.readPacketType()) {
             case CONNECT:
@@ -61,13 +64,13 @@ public class Client {
                 handleData(sockets, scComm, csComm); break;
         }
     }
-    
+
     private static void handleConnect(ArrayList<Socket> sockets, int portLocal) throws IOException {
         System.out.println("CONNECTION");
         Socket s = new Socket("localhost", portLocal);
         sockets.add(s);
     }
-    
+
     private static void handleDisconnect(ArrayList<Socket> sockets, SCComm scComm) throws IOException {
         int cid = scComm.readDisconnect();
         try {
@@ -76,7 +79,7 @@ public class Client {
         }
         catch (Exception ignored) { }
     }
-    
+
     private static void handleData(ArrayList<Socket> sockets, SCComm scComm, CSComm csComm) throws IOException {
         int cid = scComm.readDataPacketCID();
         byte[] data = scComm.readDataPacketDAT();
@@ -92,7 +95,7 @@ public class Client {
             csComm.writeDisconnect(cid);
         }
     }
-    
+
     private static void readFromClients(ArrayList<Socket> sockets, CSComm csComm, int speed) throws IOException {
         for (int cid = 0, socketsSize = sockets.size() ; cid < socketsSize ; cid++) {
             Socket socket = sockets.get(cid);
@@ -117,7 +120,7 @@ public class Client {
             }
         }
     }
-    
+
     private static void readFromClient(int cid, InputStream inp, CSComm csComm, int speed) throws IOException {
         byte[] bytes = new byte[Math.min(inp.available(), speed)];
         BufferFixer.read(inp, bytes);
